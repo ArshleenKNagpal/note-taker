@@ -25,7 +25,7 @@ res.sendFile(path.join(__dirname, "public/notes.html"));
 });
 
 //route
-app.get("*", function (req, res) {
+app.get("/", function (req, res) {
 res.sendFile(path.join(__dirname, "public/index.html"));
 });
 
@@ -35,18 +35,13 @@ console.log("/api/notes-get");
 res.json(db);
 });
 
+// app.get("*", function (req, res) {
+//   res.sendFile(path.join(__dirname, "public/index.html"));
+//   });
 
 
 
 //API POST
-
-// app.post("/api/notes", function (req, res) {
-//   const note = req.body;
-// note.id = uuid.v1();
-// db.push(note);
-// writeToDB(db);
-// return res.json(db);
-// });
 
 app.post("/api/notes", (req, res) => {
 
@@ -55,7 +50,7 @@ app.post("/api/notes", (req, res) => {
   const newNote = {
   title,
   text,
-  id: uuidv4(),
+  id: uuid.v1(),
   }
   fs.readFile("./db/db.json", (err, data) => {
   const parsedNotes = JSON.parse(data)

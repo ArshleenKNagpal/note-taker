@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const fs = require("fs");
 const path = require("path");
-const db = require("./Develop/db/db.json");
+const db = require("./db/db.json");
 
 
 // Sets an initial port. We"ll use this later in our listener

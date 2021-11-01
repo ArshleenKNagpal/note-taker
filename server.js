@@ -1,64 +1,98 @@
 //dependencies
+const fs = require("fs");
+const path = require("path");
 const express = require("express");
 const app = express();
 const uuid = require("uuid");
-const fs = require("fs");
-const path = require("path");
 const db = require("./db/db.json");
 
 
 // Sets an initial port. We"ll use this later in our listener
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3003;
 
-// Middleware
+
+
 // Sets up the Express app to handle data parsing
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("public"));
 
-//routes
-// API GET
+
+
+//route
 app.get("/notes", function (req, res) {
-    res.sendFile(path.join(__dirname, "public", "notes.html"));
+res.sendFile(path.join(__dirname, "public/notes.html"));
 });
 
+//route
 app.get("*", function (req, res) {
-  res.sendFile(path.join(__dirname, "public/index.html"));
+res.sendFile(path.join(__dirname, "public/index.html"));
 });
 
 // API GET
 app.get("/api/notes", function (req, res) {
-  console.log("/api/notes-get");
-  res.json(db);
+console.log("/api/notes-get");
+res.json(db);
 });
+
+
+
 
 //API POST
-app.post("/api/notes", function (req, res) {
-  const note = req.body;
-  note.id = uuid.v1();
-  db.push(note);
-  writeToDB(db);
-  return res.json(db);
-});
+
+// app.post("/api/notes", function (req, res) {
+//   const note = req.body;
+// note.id = uuid.v1();
+// db.push(note);
+// writeToDB(db);
+// return res.json(db);
+// });
+
+app.post("/api/notes", (req, res) => {
+
+  const { title, text } = req.body;
+  
+  const newNote = {
+  title,
+  text,
+  id: uuidv4(),
+  }
+  fs.readFile("./db/db.json", (err, data) => {
+  const parsedNotes = JSON.parse(data)
+  parsedNotes.push(newNote)
+  
+  fs.writeFile("./db/db.json", JSON.stringify(parsedNotes), (err) =>
+  err
+  ? console.log(err)
+  : console.log("new Note Saved")
+  )
+  })
+  res.sendFile(path.join(__dirname, "./db/db.json"))
+  })
+
+
 
 // Delete note
-
-app.delete("/api/notes/:id", (req, res) => {
-  readFileAsync(db_FILE, "utf8").then((data) => {
-    const notesArray = JSON.parse(data);
-    notesArray = notesArray.filter((note) => note.id !== req.params.id);
-    writeFileAsync(db_FILE, JSON.stringify(notesArray)).then(() => {
-      return res.json(notesArray);
-    });
-  });
+app.delete("/api/notes/:id", function (req, res) {
+  const id = req.params.id;
+for (let i = 0; i < db.length; i++) {
+if (db[i].id == id) {
+db.splice(i, 1);
+writeToDB(db);
+res.json(db);
+break;
+}
+}
 });
+
 
 //Write to db.json
 function writeToDB(array) {
-  fs.writeFileSync("./db/db.json", JSON.stringify(array));
+fs.writeFileSync("./db/db.json", JSON.stringify(array));
 }
 
-// chain listen() method onto our servers
-app.listen(PORT, () => {
-  console.log(`API server now on port ${PORT}!`);
+
+
+app.listen(PORT, function () {
+console.log("App listening on PORT: " + PORT);
 });
